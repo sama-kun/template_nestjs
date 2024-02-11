@@ -25,7 +25,7 @@ export class BaseModel {
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @ManyToOne('UserEntity')
   @JoinColumn()

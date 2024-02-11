@@ -1,22 +1,33 @@
-import { IntersectionType, PartialType } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt } from 'class-validator';
-import { Prisma, User } from '@prisma/client';
+import { IsNumber, IsOptional } from 'class-validator';
 
 export class SearchQueryDto {
   pagination?: Pagination;
+
+  @ApiPropertyOptional()
   sort?: any;
+
+  @ApiPropertyOptional()
   search?: any;
+
+  @ApiPropertyOptional()
   filter?: any;
+
+  @ApiPropertyOptional()
   relations?: string[];
 }
 
 class Pagination {
-  @IsInt()
+  @IsNumber()
+  @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
-  page: number;
+  @ApiPropertyOptional()
+  page?: number;
 
-  @IsInt()
+  @IsNumber()
+  @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
-  pageSize: number;
+  @ApiPropertyOptional()
+  pageSize?: number;
 }

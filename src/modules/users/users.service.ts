@@ -1,46 +1,28 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
-import { PrismaService } from '@/database/prisma.service';
-import { User } from '@prisma/client';
+import { BaseService } from '@/common/base/BaseService';
+import { UserEntity } from '@/database/entities/user.entity';
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+// const console = new Logger('UserService');
 
 @Injectable()
-export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    console.log(user);
-
-    return user;
+export class UserService extends BaseService<
+  UserEntity,
+  CreateUserDto,
+  UpdateUserDto
+> {
+  constructor(
+    @InjectRepository(UserEntity) protected repo: Repository<UserEntity>,
+  ) {
+    super();
   }
 
-  // async findById(id: string): Promise<User> {
-  //   const user = await this.userRepository
-  //     .findById(id)
-  //     .select('-password')
-  //     .exec();
-  //   console.log(user);
-  //   return user;
-  // }
-
-  async create(userDto: Prisma.UserCreateInput): Promise<User> {
-    try {
-      const user = await this.prisma.user.create({ data: userDto });
-      delete user.password;
-      return user;
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException(error.message);
-    }
+  async findByEmail(email: string): Promise<CreateUserDto> {
+    const candidate = await super.findOne({
+      where: { email },
+    });
+    return candidate;
   }
-
-  async getAll(): Promise<Prisma.UserCreateInput[]> {
-    const users = await this.prisma.user.findMany();
-    console.log(users);
-    return users;
-  }
-
-  // getRoleByName(role: string): string {
-  //   return Roles[role];
-  // }
 }

@@ -1,18 +1,13 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { XxxService } from './xxx.service';
-import { JwtModule } from '@nestjs/jwt';
-import { PrismaModule } from '@/database/prisma.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 // @ts-ignore
+import { XxxEntity } from '@/database/entities/xxx.entity';
 import { XxxController } from './xxx.controller';
 
 @Module({
-  controllers: [XxxController],
+  imports: [TypeOrmModule.forFeature([XxxEntity])],
   providers: [XxxService],
-  imports: [
-    // MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])
-    JwtModule,
-    PrismaModule,
-  ],
-  exports: [XxxService],
+  controllers: [XxxController],
 })
 export class XxxModule {}

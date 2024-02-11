@@ -7,9 +7,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/modules/users/users.service';
 import * as bcrypt from 'bcryptjs';
-import { LoginUserDto } from '../users/dto/login-user.dto';
-import { Prisma, User } from '@prisma/client';
+import { LoginUserDto } from './dto/login-user.dto';
 import { Token } from './dto/token.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +20,14 @@ export class AuthService {
 
   async login(dto: LoginUserDto): Promise<Token> {
     const user = await this.validateUser(dto);
-    delete user.password;
+    // delete user.password;
     return {
       accessToken: this.generateToken(user),
       user,
     };
   }
 
-  async registration(dto: Prisma.UserCreateInput): Promise<Token> {
+  async registration(dto: CreateUserDto): Promise<Token> {
     const candidate = await this.userService.findByEmail(dto.email);
     console.log(candidate);
 
@@ -36,28 +36,43 @@ export class AuthService {
     }
     const hash = await bcrypt.hash(dto.password, 5);
     const user = await this.userService.create({ ...dto, password: hash });
+    delete user.password;
     return {
       accessToken: this.generateToken(user),
       user,
     };
   }
 
-  private generateToken(user: User): string {
+  private generateToken(user: CreateUserDto): string {
     const payload = { email: user.email, id: user.id, role: user.role };
     console.log(user);
     return this.jwtService.sign(payload);
   }
 
-  private async validateUser(userDto: LoginUserDto): Promise<User> {
-    //console.log(userDto);
-    const user = await this.userService.findByEmail(userDto.email);
-    //console.log(user);
-    const passwordCheck = await bcrypt.compare(userDto.password, user.password);
+  private async validateUser(userDto: LoginUserDto): Promise<CreateUserDto> {
+    // console.log(userDto);
+    try {
+      const user = await this.userService.findByEmail(userDto.email);
+      // console.log(user);
+      // if (!user)
+      //   throw new UnauthorizedException({
+      //     message: 'Incorrect password or email',
+      //   });
+      const passwordCheck = await bcrypt.compare(
+        userDto.password,
+        user.password,
+      );
 
-    if (passwordCheck && user) {
-      return user;
+      if (passwordCheck && user) {
+        return user;
+      }
+      throw new UnauthorizedException({
+        message: 'Incorrect password or email',
+      });
+    } catch (error) {
+      throw new UnauthorizedException({
+        message: 'Incorrect password or email',
+      });
     }
-
-    throw new UnauthorizedException({ message: 'Incorrect password or email' });
   }
 }

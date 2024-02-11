@@ -1,16 +1,17 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserController } from './users.controller';
 import { UserService } from './users.service';
-import { JwtModule } from '@nestjs/jwt';
-import { PrismaModule } from '@/database/prisma.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from '@/database/entities/user.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [UserController],
   providers: [UserService],
   imports: [
     // MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])
-    JwtModule,
-    PrismaModule,
+    TypeOrmModule.forFeature([UserEntity]),
+    forwardRef(() => AuthModule),
   ],
   exports: [UserService],
 })

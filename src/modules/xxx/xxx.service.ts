@@ -1,21 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { BaseModel, Prisma, Role } from '@prisma/client';
-import { PrismaService } from '@/database/prisma.service';
-import { User } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { CreateXxxDto } from './dto/create-xxx.dto';
+import { UpdateXxxDto } from './dto/update-xxx.dto';
 import { BaseService } from '@/common/base/BaseService';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+// @ts-ignore
+import { XxxEntity } from '@/database/entities/xxx.entity';
 
 @Injectable()
 export class XxxService extends BaseService<
-  BaseModel,
-  Prisma.BaseModelCreateInput,
-  Partial<Prisma.BaseModelCreateInput>
+  XxxEntity,
+  CreateXxxDto,
+  UpdateXxxDto
 > {
-  protected readonly model = Prisma.ModelName.BaseModel;
-  constructor(prisma: PrismaService) {
+  constructor(
+    @InjectRepository(XxxEntity) protected repo: Repository<XxxEntity>,
+  ) {
     super();
-    this.prisma = prisma;
   }
-  // test(){
-  //   return super().
-  // }
 }
